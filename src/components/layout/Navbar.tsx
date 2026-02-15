@@ -85,7 +85,7 @@ export const Navbar: React.FC = () => {
 
 
   return (
-    <nav className="bg-app-surface border-b border-app-border px-4 md:px-6 py-3 flex items-center justify-between sticky top-0 z-30">
+    <nav className="bg-app-surface border-b border-app-border px-4 md:px-6 py-3 flex items-center justify-between sticky top-0 z-[70]">
       <div className="flex items-center gap-3 md:gap-6">
         <button
           onClick={toggleSidebar}
@@ -120,7 +120,7 @@ export const Navbar: React.FC = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full left-0 mt-2 w-[280px] sm:w-full bg-app-surface border border-app-border rounded-lg shadow-xl max-h-96 overflow-y-auto z-50"
+                className="absolute top-full left-0 mt-2 w-[280px] sm:w-full bg-app-surface border border-app-border rounded-lg shadow-xl max-h-96 overflow-y-auto z-[80]"
               >
                 {searchResults.map((result) => (
                   <button
