@@ -192,12 +192,15 @@ class FinnhubService {
    */
   getResolution(interval: string): string {
     const map: Record<string, string> = {
+      '1m': '1',
       '5m': '5',
       '15m': '15',
+      '30m': '30',
       '1h': '60',
-      '4h': '60', // Fix: 240 is not supported, using 60m instead
+      '4h': '60', // 240 is not supported, using 60m instead
       '1d': 'D',
       '1w': 'W',
+      '1M': 'M',
       'all': 'M',
     };
     return map[interval] || 'D';
@@ -208,13 +211,16 @@ class FinnhubService {
    */
   getDaysBack(interval: string): number {
     const map: Record<string, number> = {
-      '5m': 4,   // Increased to bridge weekends
-      '15m': 7,  // Increased to bridge weekends
-      '1h': 14,
-      '4h': 30,
-      '1d': 180,
-      '1w': 365,
-      'all': 1825, // 5 Jahre
+      '1m': 2,
+      '5m': 7,
+      '15m': 14,
+      '30m': 30,
+      '1h': 60,
+      '4h': 90,
+      '1d': 365,
+      '1w': 1095, // 3 Jahre
+      '1M': 1825, // 5 Jahre
+      'all': 3650, // 10 Jahre
     };
     return map[interval] || 30;
   }

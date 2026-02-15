@@ -38,12 +38,15 @@ class MarketService {
       // Fallback zu CoinGecko wenn Binance keine Daten hat (z.B. für Tokenized Stocks)
       if (binanceData.length === 0 && !endTime) {
         const daysMap: Record<TimeInterval, number> = {
+          '1m': 1,
           '5m': 1,
-          '15m': 1,
-          '1h': 7,
+          '15m': 3,
+          '30m': 7,
+          '1h': 14,
           '4h': 30,
           '1d': 365,
           '1w': 1095,
+          '1M': 3650,
           'all': 3650,
         };
         return coinGeckoService.getCandles(asset.id, daysMap[interval] || 30);
