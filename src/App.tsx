@@ -24,7 +24,7 @@ function App() {
         <Route path="/" element={<AssetsPage />} />
         <Route path="/entdecken" element={<EntdeckenPage />} />
         <Route path="/deep-research" element={<DeepResearchPage />} />
-        <Route path="/trendanalyse" element={<NexusTrendsPage />} />
+        <Route path="/trends" element={<NexusTrendsPage />} />
         <Route path="/jahresstrahl" element={<JahresstrahlPage />} />
         {/* Assets: Widget-Grid (Chart / Metrics / News) */}
         <Route path="/assets" element={<DashboardPage />} />

@@ -119,7 +119,7 @@ export const Sidebar: React.FC = () => {
               Zeitstrahl
             </NavLink>
             <NavLink
-              to="/trendanalyse"
+              to="/trends"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
               }
