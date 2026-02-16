@@ -103,7 +103,8 @@ export const Navbar: React.FC = () => {
         {/* Primary Navigation */}
         <div className="hidden md:flex items-center gap-2">
           <NavLink
-            to="/aktien"
+            to="/"
+            end
             className={({ isActive }) =>
               `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
             }
@@ -127,13 +128,12 @@ export const Navbar: React.FC = () => {
             Trends
           </NavLink>
           <NavLink
-            to="/"
-            end
+            to="/assets"
             className={({ isActive }) =>
               `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
             }
           >
-            Aktien
+            Assets
           </NavLink>
           <NavLink
             to="/deep-research"

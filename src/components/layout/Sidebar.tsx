@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, Check, X } from 'lucide-react';
 import { useStore } from '@/store';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 export const Sidebar: React.FC = () => {
+  const navigate = useNavigate();
   const {
     watchlists,
     activeWatchlistId,
@@ -88,13 +89,13 @@ export const Sidebar: React.FC = () => {
           <p className="text-xs font-semibold text-app-muted uppercase tracking-wider mb-3">Navigation</p>
           <div className="flex flex-col gap-2">
             <NavLink
-              to="/aktien"
+              to="/assets"
               className={({ isActive }) =>
                 `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
               }
               onClick={() => setSidebarOpen(false)}
             >
-              Dashboard
+              Assets
             </NavLink>
             <NavLink
               to="/jahresstrahl"
@@ -301,7 +302,10 @@ export const Sidebar: React.FC = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   className="flex items-center justify-between p-3 hover:bg-app-bg rounded-lg transition-colors group cursor-pointer"
-                  onClick={() => setSelectedAsset(asset)}
+                  onClick={() => {
+                    setSelectedAsset(asset);
+                    navigate('/assets');
+                  }}
                 >
                   <div className="flex-1">
                     <div className="text-sm font-semibold text-app-text">
