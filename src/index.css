@@ -110,6 +110,30 @@ body {
   height: 20px;
 }
 
+.react-grid-item > .react-resizable-handle {
+  touch-action: none;
+}
+
+.drag-handle {
+  touch-action: none;
+}
+
+@media (max-width: 768px) {
+  .react-grid-item > .react-resizable-handle {
+    width: 34px;
+    height: 34px;
+  }
+
+  .react-grid-item > .react-resizable-handle::after {
+    right: 10px;
+    bottom: 10px;
+    width: 8px;
+    height: 8px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+  }
+}
+
 .react-grid-item > .react-resizable-handle::after {
   content: "";
   position: absolute;

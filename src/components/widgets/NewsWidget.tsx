@@ -96,7 +96,7 @@ export const NewsWidget: React.FC = () => {
 
   return (
     <Card title="News" className="h-full flex flex-col" noPadding>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
         <div className="divide-y divide-app-border">
           {news.map((item) => (
             <a

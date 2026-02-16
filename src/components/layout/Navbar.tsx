@@ -5,6 +5,7 @@ import { marketService } from '@/services/marketService';
 import { SearchResult } from '@/types';
 import { debounce } from '@/utils/formatters';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NavLink } from 'react-router-dom';
 
 export const Navbar: React.FC = () => {
   const { isDarkMode, toggleTheme, apiStatus, setApiStatus, setSelectedAsset, toggleSidebar } = useStore();
@@ -98,6 +99,59 @@ export const Navbar: React.FC = () => {
         <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent whitespace-nowrap hidden sm:block">
           Haderas Tracker X
         </h1>
+
+        {/* Primary Navigation */}
+        <div className="hidden md:flex items-center gap-2">
+          <NavLink
+            to="/aktien"
+            className={({ isActive }) =>
+              `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
+            }
+          >
+            Dashboard
+          </NavLink>
+          <NavLink
+            to="/jahresstrahl"
+            className={({ isActive }) =>
+              `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
+            }
+          >
+            Zeitstrahl
+          </NavLink>
+          <NavLink
+            to="/trendanalyse"
+            className={({ isActive }) =>
+              `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
+            }
+          >
+            Trends
+          </NavLink>
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
+            }
+          >
+            Aktien
+          </NavLink>
+          <NavLink
+            to="/deep-research"
+            className={({ isActive }) =>
+              `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
+            }
+          >
+            Research
+          </NavLink>
+          <NavLink
+            to="/entdecken"
+            className={({ isActive }) =>
+              `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
+            }
+          >
+            Entdecken
+          </NavLink>
+        </div>
 
         {/* Search */}
         <div className="relative" ref={searchRef}>

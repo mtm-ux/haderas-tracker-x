@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, Check, X } from 'lucide-react';
 import { useStore } from '@/store';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NavLink } from 'react-router-dom';
 
 export const Sidebar: React.FC = () => {
   const {
@@ -66,10 +67,84 @@ export const Sidebar: React.FC = () => {
       </AnimatePresence>
 
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-80 bg-app-surface border-r border-app-border flex flex-col h-screen lg:h-[calc(100vh-57px)] lg:static
+        fixed top-[56px] bottom-0 left-0 z-50 w-80 bg-app-surface border-r border-app-border flex flex-col lg:h-[calc(100vh-57px)] lg:top-0 lg:bottom-auto lg:static
         transition-transform duration-300 lg:translate-x-0
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
+        {/* Sidebar Header with Close Button */}
+        <div className="border-b border-app-border px-4 py-3 flex items-center justify-between lg:hidden">
+          <h3 className="text-sm font-semibold text-app-text">Navigation</h3>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-1 hover:bg-app-bg rounded-lg transition-colors text-app-muted hover:text-app-text"
+            aria-label="Close sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* App Pages - Vertical List für bessere Lesbarkeit */}
+        <div className="border-b border-app-border p-4">
+          <p className="text-xs font-semibold text-app-muted uppercase tracking-wider mb-3">Navigation</p>
+          <div className="flex flex-col gap-2">
+            <NavLink
+              to="/aktien"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              Dashboard
+            </NavLink>
+            <NavLink
+              to="/jahresstrahl"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              Zeitstrahl
+            </NavLink>
+            <NavLink
+              to="/trendanalyse"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              Trends
+            </NavLink>
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              Aktien
+            </NavLink>
+            <NavLink
+              to="/deep-research"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              Research
+            </NavLink>
+            <NavLink
+              to="/entdecken"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              Entdecken
+            </NavLink>
+          </div>
+        </div>
+
         {/* Watchlist Tabs */}
         <div className="border-b border-app-border">
           <div className="flex items-center overflow-x-auto scrollbar-hide">

@@ -29,7 +29,7 @@ export const Card: React.FC<CardProps> = ({
           {action && <div>{action}</div>}
         </div>
       )}
-      <div className={`flex-1 ${noPadding ? '' : 'p-4'} ${className.includes('flex') ? 'flex flex-col' : ''}`}>
+      <div className={`flex-1 min-h-0 ${noPadding ? '' : 'p-4'} ${className.includes('flex') ? 'flex flex-col' : ''}`}>
         {children}
       </div>
     </motion.div>

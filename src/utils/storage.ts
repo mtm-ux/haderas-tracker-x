@@ -42,7 +42,13 @@ export const storage = {
 export const STORAGE_KEYS = {
   WATCHLISTS: 'haderas_watchlists',
   DASHBOARD_LAYOUT: 'haderas_dashboard_layout',
+  DASHBOARD_LAYOUTS: 'haderas_dashboard_layouts',
   THEME: 'haderas_theme',
   ACTIVE_WATCHLIST: 'haderas_active_watchlist',
   SELECTED_ASSET: 'haderas_selected_asset',
+  USERS: 'haderas_users',
+  ACTIVE_USER: 'haderas_active_user',
+  DEEP_RESEARCH_ITEMS: 'haderas_deep_research_items',
+  DEEP_RESEARCH_ACTIVE_ITEM: 'haderas_deep_research_active_item',
+  DEEP_RESEARCH_LAYOUTS: 'haderas_deep_research_layouts',
 } as const;
