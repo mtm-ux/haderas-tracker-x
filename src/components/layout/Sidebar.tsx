@@ -19,6 +19,7 @@ export const Sidebar: React.FC = () => {
     setSelectedAsset,
     isSidebarOpen,
     setSidebarOpen,
+    isSidebarCollapsed,
   } = useStore();
 
   const [isCreating, setIsCreating] = useState(false);
@@ -62,18 +63,19 @@ export const Sidebar: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
+            className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
           />
         )}
       </AnimatePresence>
 
       <div className={`
-        fixed top-[56px] bottom-0 left-0 z-50 w-80 bg-app-surface border-r border-app-border flex flex-col lg:h-[calc(100vh-57px)] lg:top-0 lg:bottom-auto lg:static
-        transition-transform duration-300 lg:translate-x-0
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        fixed top-[56px] bottom-0 left-0 z-50 bg-app-surface border-r border-app-border flex flex-col w-80 md:h-[calc(100vh-57px)] md:top-0 md:bottom-auto md:static
+        transition-all duration-300 md:translate-x-0
+        ${isSidebarCollapsed ? 'md:w-0 md:overflow-hidden md:border-r-0' : 'md:w-80'}
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Sidebar Header with Close Button */}
-        <div className="border-b border-app-border px-4 py-3 flex items-center justify-between lg:hidden">
+        <div className="border-b border-app-border px-4 py-3 flex items-center justify-between md:hidden">
           <h3 className="text-sm font-semibold text-app-text">Navigation</h3>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -88,6 +90,16 @@ export const Sidebar: React.FC = () => {
         <div className="border-b border-app-border p-4">
           <p className="text-xs font-semibold text-app-muted uppercase tracking-wider mb-3">Navigation</p>
           <div className="flex flex-col gap-2">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              Dashboard
+            </NavLink>
             <NavLink
               to="/assets"
               className={({ isActive }) =>
@@ -114,16 +126,6 @@ export const Sidebar: React.FC = () => {
               onClick={() => setSidebarOpen(false)}
             >
               Trends
-            </NavLink>
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                `px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${isActive ? 'bg-primary-500/20 text-primary-300 font-semibold' : 'text-app-text hover:bg-app-bg'}`
-              }
-              onClick={() => setSidebarOpen(false)}
-            >
-              Aktien
             </NavLink>
             <NavLink
               to="/deep-research"

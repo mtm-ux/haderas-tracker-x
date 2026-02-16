@@ -3,6 +3,8 @@ import { StockQuote, PriceData } from '@/types';
 import { stockService } from '@/services/stockService';
 import { finnhubService } from '@/services/finnhubService';
 import { coinGeckoService } from '@/services/coinGeckoService';
+import { binanceService } from '@/services/binanceService';
+import { resolveCoinGeckoId } from '@/utils/coinGeckoIds';
 import { X, TrendingUp, TrendingDown, Zap, Activity } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Loader } from '@/components/common/Loader';
@@ -29,8 +31,14 @@ export const StockDetailPanel: React.FC<StockDetailPanelProps> = ({
         let data: PriceData | null = null;
 
         if (isCrypto) {
-          // Für Crypto: CoinGecko API
-          data = await coinGeckoService.getPrice(stock.symbol.toLowerCase());
+          // Für Crypto: Primär Binance (schneller), Fallback CoinGecko
+          data = await binanceService.getPriceBySymbol(stock.symbol);
+          if (!data) {
+            const coinId = await resolveCoinGeckoId(stock.symbol);
+            if (coinId) {
+              data = await coinGeckoService.getPrice(coinId);
+            }
+          }
         } else {
           // Für Stocks: Finnhub API
           data = await finnhubService.getPrice(stock.symbol);
@@ -49,8 +57,12 @@ export const StockDetailPanel: React.FC<StockDetailPanelProps> = ({
     loadPriceData();
   }, [stock]);
 
-  const changeColor = stockService.getChangeColor(stock.change_percent);
-  const isPositive = stock.change_percent >= 0;
+  const displayPrice = priceData?.price ?? stock.price;
+  const displayChangePercent = priceData?.changePercent24h ?? stock.change_percent;
+  const displayChangeValue = priceData?.change24h ?? stock.change_value;
+
+  const changeColor = stockService.getChangeColor(displayChangePercent);
+  const isPositive = displayChangePercent >= 0;
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
 
   return (
@@ -92,7 +104,7 @@ export const StockDetailPanel: React.FC<StockDetailPanelProps> = ({
                 <div>
                   <p className="text-sm text-app-muted mb-2">Aktueller Preis</p>
                   <p className="text-4xl md:text-5xl font-bold text-app-text">
-                    {stockService.formatPrice(stock.price)}
+                    {stockService.formatPrice(displayPrice)}
                   </p>
                 </div>
 
@@ -107,10 +119,10 @@ export const StockDetailPanel: React.FC<StockDetailPanelProps> = ({
                   </div>
                   <div className="flex-1">
                     <p className={`text-lg font-bold ${changeColor}`}>
-                      {stockService.formatChangePercent(stock.change_percent)}
+                      {stockService.formatChangePercent(displayChangePercent)}
                     </p>
                     <p className="text-sm text-app-muted">
-                      {isPositive ? 'Anstieg' : 'Rückgang'} ({stockService.formatChangeValue(stock.change_value)})
+                      {isPositive ? 'Anstieg' : 'Rückgang'} ({stockService.formatChangeValue(displayChangeValue)})
                     </p>
                   </div>
                 </div>

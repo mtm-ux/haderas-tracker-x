@@ -3,13 +3,13 @@ import { TimelineEvent, TimelineEventResponse } from '@/types';
 export const timelineService = {
   /**
    * Fetch events für einen Zeitraum
-   * Mit Pagination: 3 Monate pro Request
+   * Mit Pagination: Unterstützt Load More Funktionalität
    */
   async fetchEvents(
     startDate: string,
     endDate: string,
     page: number = 1,
-    limit: number = 50
+    limit: number = 20
   ): Promise<TimelineEventResponse> {
     try {
       const params = new URLSearchParams({
@@ -30,12 +30,12 @@ export const timelineService = {
       return await response.json();
     } catch (error) {
       console.error('Failed to fetch timeline events:', error);
-      // Fallback mock data
+      // Fallback mit besseren Mock-Daten
       return {
-        events: getMockTimelineEvents(),
+        events: getMockTimelineEvents(page, limit),
         pagination: {
-          total: 0,
-          page: 1,
+          total: 52, // 1 Jahr mit verschiedenen Events pro Woche
+          page,
           limit,
         },
       };
@@ -112,7 +112,7 @@ export const timelineService = {
   /**
    * Get categories from events
    */
-  getCategories(events: TimelineEvent[]) {
+  getCategories() {
     const categories = [
       { id: 'macro', label: 'Makro', color: 'bg-blue-500/20 text-blue-300' },
       { id: 'earnings', label: 'Earnings', color: 'bg-emerald-500/20 text-emerald-300' },
@@ -126,58 +126,237 @@ export const timelineService = {
 };
 
 /**
- * Mock data für Entwicklung
+ * Realistische Mock-Daten für Jahresstrahl
+ * Generiert Events für das gesamte Jahr mit Pagination
  */
-function getMockTimelineEvents(): TimelineEvent[] {
+function getMockTimelineEvents(page: number = 1, limit: number = 20): TimelineEvent[] {
   const today = new Date();
-  const startOfYear = new Date(today.getFullYear(), 0, 1);
+  const year = today.getFullYear();
+  const allEvents: TimelineEvent[] = [];
 
-  return [
+  // Generiere realistische Events über das ganze Jahr
+  const eventTemplates: Array<Omit<TimelineEvent, 'id'>> = [
+    // Q1
     {
-      id: 'evt-1',
-      date: new Date(today.getFullYear(), 2, 15).toISOString(),
-      title: 'Fed Interest Rate Decision',
-      category: 'central_bank',
+      date: new Date(year, 0, 10).toISOString(),
+      title: 'Fed Funds Conference',
+      category: 'central_bank' as const,
       importance: 5,
-      assets: ['BTC', 'SPX'],
+      assets: ['SPX', 'DXY'],
       region: 'US',
-      summary: 'Federal Reserve announces interest rate decision',
-      description:
-        'The Fed is expected to maintain rates or signal future cuts depending on inflation data.',
-      price_impact: { BTC: -2.4, SPX: 1.2 },
+      summary: 'Federal Reserve Communications',
+      price_impact: { SPX: 1.2, DXY: 0.5 },
     },
     {
-      id: 'evt-2',
-      date: new Date(today.getFullYear(), 2, 20).toISOString(),
-      title: 'Apple Q2 Earnings',
-      category: 'earnings',
+      date: new Date(year, 0, 25).toISOString(),
+      title: 'Apple Q1 Earnings',
+      category: 'earnings' as const,
       importance: 4,
-      assets: ['AAPL'],
+      assets: ['AAPL', 'QQQ'],
       region: 'US',
-      summary: 'Apple reports quarterly earnings beating expectations',
-      price_impact: { AAPL: 3.5 },
+      summary: 'Apple reports record revenue',
+      price_impact: { AAPL: 5.2, QQQ: 1.8 },
     },
     {
-      id: 'evt-3',
-      date: new Date(today.getFullYear(), 1, 10).toISOString(),
-      title: 'CPI Release - Inflation Data',
-      category: 'economic',
+      date: new Date(year, 1, 5).toISOString(),
+      title: 'CPI Release January',
+      category: 'economic' as const,
       importance: 5,
-      assets: ['TLT', 'GLD', 'USD'],
+      assets: ['TLT', 'GLD'],
       region: 'US',
-      summary: 'US inflation data influences market expectations',
+      summary: 'Inflation data comes in hotter than expected',
       price_impact: { TLT: -2.1, GLD: 1.8 },
     },
     {
-      id: 'evt-4',
-      date: new Date(today.getFullYear(), 0, 25).toISOString(),
-      title: 'Geopolitical Tensions Rise',
-      category: 'geopolitical',
-      importance: 3,
-      assets: ['CL', 'GC', 'UUP'],
+      date: new Date(year, 1, 15).toISOString(),
+      title: 'ECB Rate Decision',
+      category: 'central_bank' as const,
+      importance: 4,
+      assets: ['EURUSD', 'STOXX600'],
+      region: 'EU',
+      summary: 'European Central Bank decision',
+      price_impact: {},
+    },
+    {
+      date: new Date(year, 2, 10).toISOString(),
+      title: 'Geopolitical Escalation',
+      category: 'geopolitical' as const,
+      importance: 4,
+      assets: ['CL', 'GC', 'JNUG'],
       region: 'GLOBAL',
-      summary: 'Global tensions affect energy and safe-haven assets',
-      price_impact: { CL: 2.3 },
+      summary: 'Tensions rise affecting energy and safe-haven assets',
+      price_impact: { CL: 3.2, GC: 2.1 },
+    },
+    // Q2
+    {
+      date: new Date(year, 3, 5).toISOString(),
+      title: 'FOMC Meeting',
+      category: 'central_bank' as const,
+      importance: 5,
+      assets: ['SPX', 'BND'],
+      region: 'US',
+      summary: 'Fed signals future rate cuts',
+      price_impact: { SPX: 3.1, BND: 1.5 },
+    },
+    {
+      date: new Date(year, 3, 20).toISOString(),
+      title: 'Microsoft Q3 Earnings',
+      category: 'earnings' as const,
+      importance: 5,
+      assets: ['MSFT', 'QQQ'],
+      region: 'US',
+      summary: 'Strong AI-driven earnings growth',
+      price_impact: { MSFT: 6.2, QQQ: 2.8 },
+    },
+    {
+      date: new Date(year, 4, 2).toISOString(),
+      title: 'Labor Report April',
+      category: 'economic' as const,
+      importance: 5,
+      assets: ['SPX', 'VIX'],
+      region: 'US',
+      summary: 'Strong job creation continues',
+      price_impact: { SPX: 2.1 },
+    },
+    {
+      date: new Date(year, 4, 15).toISOString(),
+      title: 'China GDP Release',
+      category: 'economic' as const,
+      importance: 4,
+      assets: ['QQQ', 'ASHR'],
+      region: 'ASIA',
+      summary: 'Mixed economic indicators',
+      price_impact: {},
+    },
+    {
+      date: new Date(year, 5, 1).toISOString(),
+      title: 'Fed Rate Hike Decision',
+      category: 'central_bank' as const,
+      importance: 5,
+      assets: ['DXY', 'TLT'],
+      region: 'US',
+      summary: 'Unexpected rate hike due to inflation',
+      price_impact: { DXY: 1.2, TLT: -3.5 },
+    },
+    // Q3
+    {
+      date: new Date(year, 6, 10).toISOString(),
+      title: 'Amazon Q2 Earnings',
+      category: 'earnings' as const,
+      importance: 4,
+      assets: ['AMZN', 'QQQ'],
+      region: 'US',
+      summary: 'Cloud revenues exceed expectations',
+      price_impact: { AMZN: 4.5 },
+    },
+    {
+      date: new Date(year, 7, 5).toISOString(),
+      title: 'August Inflation Data',
+      category: 'economic' as const,
+      importance: 5,
+      assets: ['SPX', 'VIX'],
+      region: 'US',
+      summary: 'Inflation moderates significantly',
+      price_impact: { SPX: 2.8, VIX: -8.2 },
+    },
+    {
+      date: new Date(year, 7, 25).toISOString(),
+      title: 'Jackson Hole Symposium',
+      category: 'central_bank' as const,
+      importance: 4,
+      assets: ['SPX', 'DXY'],
+      region: 'US',
+      summary: 'Fed Chair discusses economic outlook',
+      price_impact: { SPX: 1.5 },
+    },
+    {
+      date: new Date(year, 8, 10).toISOString(),
+      title: 'NVIDIA Earnings Report',
+      category: 'earnings' as const,
+      importance: 5,
+      assets: ['NVDA', 'QQQ'],
+      region: 'US',
+      summary: 'Record GPU demand drives earnings',
+      price_impact: { NVDA: 7.2, QQQ: 2.1 },
+    },
+    {
+      date: new Date(year, 8, 20).toISOString(),
+      title: 'Fed Rate Cut Decision',
+      category: 'central_bank' as const,
+      importance: 5,
+      assets: ['SPX', 'BND'],
+      region: 'US',
+      summary: 'First rate cut of the cycle',
+      price_impact: { SPX: 2.3, BND: 0.8 },
+    },
+    // Q4
+    {
+      date: new Date(year, 9, 5).toISOString(),
+      title: 'Q3 GDP Growth',
+      category: 'economic' as const,
+      importance: 4,
+      assets: ['SPX', 'DXY'],
+      region: 'US',
+      summary: 'Gross Domestic Product growth report',
+      price_impact: { SPX: 1.2 },
+    },
+    {
+      date: new Date(year, 10, 1).toISOString(),
+      title: 'US Election Impact',
+      category: 'geopolitical' as const,
+      importance: 5,
+      assets: ['SPX', 'VIX', 'DXY'],
+      region: 'US',
+      summary: 'Election results influence market outlook',
+      price_impact: { SPX: 3.5, VIX: -12.1 },
+    },
+    {
+      date: new Date(year, 10, 15).toISOString(),
+      title: 'Thanksgiving Market Close',
+      category: 'other' as const,
+      importance: 2,
+      assets: ['SPX'],
+      region: 'US',
+      summary: 'Extended Thanksgiving weekend',
+      price_impact: {},
+    },
+    {
+      date: new Date(year, 11, 5).toISOString(),
+      title: 'December FOMC Meeting',
+      category: 'central_bank' as const,
+      importance: 5,
+      assets: ['SPX', 'DXY'],
+      region: 'US',
+      summary: 'Final Fed decision of the year',
+      price_impact: { SPX: 2.1 },
+    },
+    {
+      date: new Date(year, 11, 20).toISOString(),
+      title: 'Year-End Portfolio Review',
+      category: 'other' as const,
+      importance: 3,
+      assets: ['SPX', 'AGG', 'GLD'],
+      region: 'GLOBAL',
+      summary: 'Market wrapping up for 2026',
+      price_impact: {},
     },
   ];
+
+  // Sortiere nach Datum
+  // Füge Unique IDs zu den Event Templates hinzu
+  const templatesWithIds = eventTemplates.map((evt, idx) => ({
+    ...evt,
+    id: `evt-${idx + 1}`,
+  }));
+  allEvents.push(...templatesWithIds);
+  allEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  // Return the events with IDs already added above
+  const eventWithIds = allEvents;
+
+  // Pagination
+  const start = (page - 1) * limit;
+  const end = start + limit;
+
+  return eventWithIds.slice(start, end);
 }

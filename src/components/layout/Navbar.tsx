@@ -90,7 +90,7 @@ export const Navbar: React.FC = () => {
       <div className="flex items-center gap-3 md:gap-6">
         <button
           onClick={toggleSidebar}
-          className="p-2 hover:bg-app-bg rounded-lg lg:hidden text-app-text transition-colors"
+          className="p-2 hover:bg-app-bg rounded-lg md:hidden text-app-text transition-colors"
           aria-label="Toggle sidebar"
         >
           <Menu className="w-5 h-5" />
@@ -112,6 +112,14 @@ export const Navbar: React.FC = () => {
             Dashboard
           </NavLink>
           <NavLink
+            to="/assets"
+            className={({ isActive }) =>
+              `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
+            }
+          >
+            Assets
+          </NavLink>
+          <NavLink
             to="/jahresstrahl"
             className={({ isActive }) =>
               `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
@@ -126,14 +134,6 @@ export const Navbar: React.FC = () => {
             }
           >
             Trends
-          </NavLink>
-          <NavLink
-            to="/assets"
-            className={({ isActive }) =>
-              `px-3 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary-500/20 text-primary-300' : 'text-app-muted hover:text-app-text hover:bg-app-bg'}`
-            }
-          >
-            Assets
           </NavLink>
           <NavLink
             to="/deep-research"

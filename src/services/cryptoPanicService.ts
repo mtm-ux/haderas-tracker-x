@@ -41,6 +41,10 @@ class CryptoPanicService {
         params,
       });
 
+      if (!response || !response.results || !Array.isArray(response.results)) {
+        return [];
+      }
+
       return response.results.slice(0, 20).map((post: any) => ({
         id: post.id,
         title: post.title,

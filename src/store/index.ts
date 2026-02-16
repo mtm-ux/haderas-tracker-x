@@ -23,6 +23,11 @@ interface AppState {
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
 
+  // Sidebar (Desktop collapse)
+  isSidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleSidebarCollapsed: () => void;
+
   // API Status
   apiStatus: ApiState;
   setApiStatus: (service: keyof ApiState, status: ApiState[keyof ApiState]) => void;
@@ -185,6 +190,20 @@ export const useStore = create<AppState>((set, get) => ({
   isSidebarOpen: false,
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
   toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+
+  // Sidebar (Desktop collapse)
+  isSidebarCollapsed: storage.get(STORAGE_KEYS.SIDEBAR_COLLAPSED, false),
+  setSidebarCollapsed: (collapsed) => {
+    storage.set(STORAGE_KEYS.SIDEBAR_COLLAPSED, collapsed);
+    set({ isSidebarCollapsed: collapsed });
+  },
+  toggleSidebarCollapsed: () => {
+    set((state) => {
+      const newValue = !state.isSidebarCollapsed;
+      storage.set(STORAGE_KEYS.SIDEBAR_COLLAPSED, newValue);
+      return { isSidebarCollapsed: newValue };
+    });
+  },
 
   // API Status
   apiStatus: {

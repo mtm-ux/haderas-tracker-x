@@ -1,5 +1,5 @@
 import { ApiClient } from './apiClient';
-import { CandleData, TimeInterval, Asset } from '@/types';
+import { CandleData, TimeInterval, Asset, PriceData } from '@/types';
 
 class BinanceService {
     private client: ApiClient;
@@ -10,6 +10,51 @@ class BinanceService {
 
     setStatusCallback(callback: (status: 'connected' | 'connecting' | 'error') => void): void {
         this.client.setStatusCallback(callback);
+    }
+
+    /**
+     * Holt 24h Preis-Daten von Binance (Ticker 24hr)
+     * Hinweis: Binance kennt keine CoinGecko-IDs, nur Trading-Pairs (z.B. BTCUSDT).
+     */
+    async getPrice(asset: Asset): Promise<PriceData | null> {
+        return this.getPriceBySymbol(asset.symbol);
+    }
+
+    async getPriceBySymbol(symbol: string): Promise<PriceData | null> {
+        try {
+            const s = symbol.toUpperCase();
+            const binanceSymbol = s.endsWith('USDT') ? s : `${s}USDT`;
+
+            const response = await this.client.get<any>('/ticker/24hr', {
+                params: { symbol: binanceSymbol },
+            });
+
+            if (!response) return null;
+
+            const lastPrice = parseFloat(response.lastPrice);
+            if (!Number.isFinite(lastPrice)) return null;
+
+            const priceChange = parseFloat(response.priceChange);
+            const priceChangePercent = parseFloat(response.priceChangePercent);
+            const quoteVolume = parseFloat(response.quoteVolume);
+            const highPrice = parseFloat(response.highPrice);
+            const lowPrice = parseFloat(response.lowPrice);
+
+            return {
+                symbol: s,
+                price: lastPrice,
+                change24h: Number.isFinite(priceChange) ? priceChange : 0,
+                changePercent24h: Number.isFinite(priceChangePercent) ? priceChangePercent : 0,
+                volume24h: Number.isFinite(quoteVolume) ? quoteVolume : undefined,
+                high24h: Number.isFinite(highPrice) ? highPrice : undefined,
+                low24h: Number.isFinite(lowPrice) ? lowPrice : undefined,
+                lastUpdate: Date.now(),
+            };
+        } catch (error) {
+            // Für nicht vorhandene Paare (oder Rate-Limits) fallbacken wir später auf CoinGecko
+            console.error('Binance price error:', error);
+            return null;
+        }
     }
 
     /**
@@ -29,6 +74,10 @@ class BinanceService {
                     endTime: endTime,
                 },
             });
+
+            if (!response || !Array.isArray(response) || response.length === 0) {
+                return [];
+            }
 
             return response.map((kline) => ({
                 time: kline[0], // Open time

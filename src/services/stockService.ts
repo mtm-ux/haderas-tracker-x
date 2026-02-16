@@ -1,6 +1,8 @@
 import { StockQuote, PriceData } from '@/types';
 import { finnhubService } from './finnhubService';
 import { coinGeckoService } from './coinGeckoService';
+import { binanceService } from './binanceService';
+import { resolveCoinGeckoId } from '@/utils/coinGeckoIds';
 
 /**
  * Mock data für Entwicklung
@@ -128,10 +130,19 @@ export const stockService = {
         const isCrypto = isCryptoSymbol(symbol);
 
         if (isCrypto) {
-          const priceData = await coinGeckoService.getPrice(symbol.toLowerCase());
-          if (priceData) {
-            quotes.push(priceDataToQuote(priceData, symbol));
+          const binance = await binanceService.getPriceBySymbol(symbol);
+          if (binance) {
+            quotes.push(priceDataToQuote(binance, symbol));
             continue;
+          }
+
+          const coinId = await resolveCoinGeckoId(symbol);
+          if (coinId) {
+            const priceData = await coinGeckoService.getPrice(coinId);
+            if (priceData) {
+              quotes.push(priceDataToQuote(priceData, symbol));
+              continue;
+            }
           }
         } else {
           const priceData = await finnhubService.getPrice(symbol);
@@ -189,7 +200,9 @@ export const stockService = {
 
       // Konvertiere Crypto Results
       for (const result of cryptoResults) {
-        const priceData = await coinGeckoService.getPrice(result.id);
+        const binance = await binanceService.getPriceBySymbol(result.symbol);
+        const priceData = binance ?? (await coinGeckoService.getPrice(result.id));
+
         if (priceData) {
           quotes.push(priceDataToQuote(priceData, result.symbol));
         } else {

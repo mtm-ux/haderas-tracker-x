@@ -126,6 +126,15 @@ export const DeepResearchPage: React.FC = () => {
 
   const handleSendChat = async () => {
     if (!chatInput.trim() || !activeItem) return;
+    
+    // Check if Gemini API is configured
+    if (!geminiService.isConfigured) {
+      setChatError(
+        '❌ Gemini API nicht konfiguriert. Bitte VITE_GEMINI_API_KEY in .env.local setzen und die App neu laden.'
+      );
+      return;
+    }
+    
     const question = chatInput.trim();
     setChatInput('');
     setChatError(null);
@@ -160,7 +169,7 @@ export const DeepResearchPage: React.FC = () => {
       console.error('Gemini chat error:', err);
       setChatError(
         err?.message ??
-          'Fehler bei der Kommunikation mit dem AI-Service. Bitte später erneut versuchen.',
+          '❌ Fehler bei der Kommunikation mit dem Gemini AI Service. Stelle sicher, dass der API-Key gültig ist und das Rate-Limit nicht überschritten wurde.'
       );
     } finally {
       setIsChatLoading(false);

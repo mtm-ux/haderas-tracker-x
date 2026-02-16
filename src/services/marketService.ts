@@ -22,6 +22,9 @@ class MarketService {
    */
   async getPrice(asset: Asset): Promise<PriceData | null> {
     if (asset.type === 'crypto') {
+      // Primär: Binance (schneller/stabiler), Fallback: CoinGecko
+      const binance = await binanceService.getPrice(asset);
+      if (binance) return binance;
       return coinGeckoService.getPrice(asset.id);
     } else {
       return finnhubService.getPrice(asset.symbol);

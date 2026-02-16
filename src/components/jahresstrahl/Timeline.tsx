@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { TimelineEvent } from '@/types';
 import { timelineService } from '@/services/timelineService';
 import { TimelineFilterBar } from './TimelineFilterBar';
@@ -6,28 +6,25 @@ import { TimelineEventCard } from './TimelineEventCard';
 import { TimelineDetailPanel } from './TimelineDetailPanel';
 import { Card } from '@/components/common/Card';
 import { Loader } from '@/components/common/Loader';
-import { Calendar } from 'lucide-react';
+import { Calendar, ChevronDown } from 'lucide-react';
 
 interface TimelineProps {
   events?: TimelineEvent[];
   isLoading?: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
 }
 
 export const Timeline: React.FC<TimelineProps> = ({
   events = [],
   isLoading = false,
+  onLoadMore,
+  hasMore = false,
 }) => {
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
-
-  // Static events reference (in real app, from React Query)
-  useEffect(() => {
-    if (!events.length) {
-      // No events provided
-    }
-  }, [events]);
 
   // Filter and sort events
   const filteredEvents = useMemo(() => {
@@ -48,39 +45,29 @@ export const Timeline: React.FC<TimelineProps> = ({
     return timelineService.sortByDate(filtered, true);
   }, [events, selectedCategory, selectedYear, selectedAsset]);
 
-  // Calculate timeline positions
-  const timelineMetrics = useMemo(() => {
-    if (!filteredEvents.length) return { minDate: 0, maxDate: 0, range: 0 };
+  // Group events by month
+  const eventsByMonth = useMemo(() => {
+    const grouped = new Map<string, TimelineEvent[]>();
+    
+    filteredEvents.forEach((event) => {
+      const date = new Date(event.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (!grouped.has(monthKey)) {
+        grouped.set(monthKey, []);
+      }
+      grouped.get(monthKey)!.push(event);
+    });
 
-    const dates = filteredEvents.map((e) => new Date(e.date).getTime());
-    const minDate = Math.min(...dates);
-    const maxDate = Math.max(...dates);
-
-    return {
-      minDate,
-      maxDate,
-      range: maxDate - minDate,
-    };
+    return grouped;
   }, [filteredEvents]);
 
-  // Position events on timeline
-  const positionedEvents = useMemo(
-    () =>
-      filteredEvents.map((event, index) => {
-        const eventDate = new Date(event.date).getTime();
-        const position =
-          timelineMetrics.range === 0
-            ? 50
-            : ((eventDate - timelineMetrics.minDate) / timelineMetrics.range) * 100;
-
-        return {
-          event,
-          position,
-          isAbove: index % 2 === 0,
-        };
-      }),
-    [filteredEvents, timelineMetrics]
-  );
+  // Format month label
+  const getMonthLabel = (monthKey: string) => {
+    const [year, month] = monthKey.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+  };
 
   return (
     <div className="h-full overflow-y-auto p-3 md:p-6 space-y-4 md:space-y-6">
@@ -90,7 +77,7 @@ export const Timeline: React.FC<TimelineProps> = ({
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-app-text">Jahresstrahl</h2>
           <p className="text-sm text-app-muted mt-1">
-            Interaktiver Zeitstrahl für Finanzmarkt-Ereignisse
+            Interaktiver Zeitstrahl für Finanzmarkt-Ereignisse ({filteredEvents.length} Events)
           </p>
         </div>
       </div>
@@ -106,85 +93,80 @@ export const Timeline: React.FC<TimelineProps> = ({
         onAssetChange={setSelectedAsset}
       />
 
-      {/* Timeline */}
-      <Card className="h-[500px] flex flex-col" title="Timeline">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <Loader />
-          </div>
-        ) : filteredEvents.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-app-muted">
-            <p>Keine Events für diese Filter gefunden</p>
-          </div>
-        ) : (
-          <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
-            <div className="relative px-4 py-8" style={{ minWidth: '100%' }}>
-              {/* Central Timeline Line */}
-              <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-gradient-to-r from-app-border via-primary-500/50 to-app-border" />
-
-              {/* Vertical Markers und Labels */}
-              <div className="relative h-96">
-                {/* Events above timeline */}
-                <div className="absolute top-0 inset-x-0 h-1/2 space-y-4 px-2">
-                  {positionedEvents
-                    .filter((item) => item.isAbove)
-                    .map(({ event, position }) => (
-                      <div
-                        key={event.id}
-                        className="absolute flex justify-center"
-                        style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
-                      >
-                        {/* Connection line */}
-                        <div className="w-0.5 h-12 bg-app-border" />
-                        {/* Event card */}
-                        <div className="absolute top-12">
-                          <TimelineEventCard
-                            event={event}
-                            positioned
-                            onSelect={setSelectedEvent}
-                          />
-                        </div>
-                      </div>
-                    ))}
+      {/* Timeline mit Monats-Gruppierung */}
+      {isLoading && events.length === 0 ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader />
+        </div>
+      ) : filteredEvents.length === 0 ? (
+        <Card className="p-8 text-center">
+          <p className="text-app-muted">Keine Events für diese Filter gefunden</p>
+        </Card>
+      ) : (
+        <>
+          {/* Vertical Timeline View mit Monats-Markierungen */}
+          <div className="space-y-8">
+            {Array.from(eventsByMonth.entries()).map(([monthKey, monthEvents]) => (
+              <div key={monthKey}>
+                {/* Month Marker */}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="text-sm font-bold text-primary-400 uppercase tracking-wider">
+                    {getMonthLabel(monthKey)}
+                  </div>
+                  <div className="flex-1 h-0.5 bg-gradient-to-r from-primary-500/50 to-transparent" />
+                  <span className="text-xs text-app-muted px-2 py-1 bg-app-bg rounded">
+                    {monthEvents.length} {monthEvents.length === 1 ? 'Event' : 'Events'}
+                  </span>
                 </div>
 
-                {/* Events below timeline */}
-                <div className="absolute bottom-0 inset-x-0 h-1/2 space-y-4 px-2">
-                  {positionedEvents
-                    .filter((item) => !item.isAbove)
-                    .map(({ event, position }) => (
-                      <div
-                        key={event.id}
-                        className="absolute flex justify-center"
-                        style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
-                      >
-                        {/* Event card */}
-                        <div className="absolute bottom-12">
-                          <TimelineEventCard
-                            event={event}
-                            positioned
-                            onSelect={setSelectedEvent}
-                          />
-                        </div>
-                        {/* Connection line */}
-                        <div className="w-0.5 h-12 bg-app-border" />
-                      </div>
-                    ))}
-                </div>
+                {/* Events in this month */}
+                <div className="space-y-3 pl-4 border-l-2 border-primary-500/30">
+                  {monthEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className="relative pl-4 cursor-pointer group"
+                      onClick={() => setSelectedEvent(event)}
+                    >
+                      {/* Timeline dot */}
+                      <div className="absolute -left-[17px] top-1 w-4 h-4 rounded-full bg-primary-500 border-4 border-app-surface shadow-md group-hover:scale-125 transition-transform" />
 
-                {/* Center point markers */}
-                {positionedEvents.map(({ position }) => (
-                  <div
-                    key={`marker-${position}`}
-                    className="absolute top-1/2 w-2 h-2 rounded-full bg-primary-400 shadow-md transform -translate-x-1/2 -translate-y-1/2"
-                    style={{ left: `${position}%` }}
-                  />
-                ))}
+                      {/* Event Card */}
+                      <TimelineEventCard
+                        event={event}
+                        onSelect={setSelectedEvent}
+                        positioned={false}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-        )}
-      </Card>
+
+          {/* Load More Button */}
+          {hasMore && onLoadMore && (
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={onLoadMore}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-6 py-3 bg-primary-500/20 border border-primary-500/50 rounded-lg text-primary-400 hover:bg-primary-500/30 disabled:opacity-50 transition-colors"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader />
+                    Laden...
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4" />
+                    Mehr Events laden
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Event Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

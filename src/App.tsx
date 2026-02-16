@@ -20,12 +20,14 @@ function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route path="/" element={<DashboardPage />} />
+        {/* Dashboard: Liste + Detailpanel */}
+        <Route path="/" element={<AssetsPage />} />
         <Route path="/entdecken" element={<EntdeckenPage />} />
         <Route path="/deep-research" element={<DeepResearchPage />} />
         <Route path="/trendanalyse" element={<NexusTrendsPage />} />
         <Route path="/jahresstrahl" element={<JahresstrahlPage />} />
-        <Route path="/assets" element={<AssetsPage />} />
+        {/* Assets: Widget-Grid (Chart / Metrics / News) */}
+        <Route path="/assets" element={<DashboardPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

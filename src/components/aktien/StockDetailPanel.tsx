@@ -3,6 +3,8 @@ import { StockQuote, PriceData } from '@/types';
 import { stockService } from '@/services/stockService';
 import { finnhubService } from '@/services/finnhubService';
 import { coinGeckoService } from '@/services/coinGeckoService';
+import { binanceService } from '@/services/binanceService';
+import { resolveCoinGeckoId } from '@/utils/coinGeckoIds';
 import { X, TrendingUp, TrendingDown, Zap, Activity } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Loader } from '@/components/common/Loader';
@@ -29,8 +31,14 @@ export const StockDetailPanel: React.FC<StockDetailPanelProps> = ({
         let data: PriceData | null = null;
 
         if (isCrypto) {
-          // Für Crypto: CoinGecko API
-          data = await coinGeckoService.getPrice(stock.symbol.toLowerCase());
+          // Für Crypto: Primär Binance (schneller), Fallback CoinGecko
+          data = await binanceService.getPriceBySymbol(stock.symbol);
+          if (!data) {
+            const coinId = await resolveCoinGeckoId(stock.symbol);
+            if (coinId) {
+              data = await coinGeckoService.getPrice(coinId);
+            }
+          }
         } else {
           // Für Stocks: Finnhub API
           data = await finnhubService.getPrice(stock.symbol);

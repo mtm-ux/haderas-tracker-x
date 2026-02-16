@@ -22,7 +22,7 @@ export const TimelineFilterBar: React.FC<FilterBarProps> = ({
   onYearChange,
   onAssetChange,
 }) => {
-  const categories = useMemo(() => timelineService.getCategories(events), [events]);
+  const categories = useMemo(() => timelineService.getCategories(), []);
   const years = useMemo(() => timelineService.getUniqueYears(events), [events]);
   const assets = useMemo(() => timelineService.getUniqueAssets(events), [events]);
 

@@ -51,4 +51,5 @@ export const STORAGE_KEYS = {
   DEEP_RESEARCH_ITEMS: 'haderas_deep_research_items',
   DEEP_RESEARCH_ACTIVE_ITEM: 'haderas_deep_research_active_item',
   DEEP_RESEARCH_LAYOUTS: 'haderas_deep_research_layouts',
+  SIDEBAR_COLLAPSED: 'haderas_sidebar_collapsed',
 } as const;
